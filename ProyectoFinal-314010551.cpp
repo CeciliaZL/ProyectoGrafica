@@ -1,5 +1,5 @@
 /*
-Práctica 7: Iluminación 1 
+PROYECTO FINAL
 */
 //para cargar imagen
 #define STB_IMAGE_IMPLEMENTATION
