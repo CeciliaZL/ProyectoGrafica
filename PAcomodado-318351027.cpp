@@ -66,7 +66,6 @@ Model tori;
 Model toriP;
 Model Primo_M;
 Model Piramide_M;
-Model fideos3;
 //Model piso1;
 Model isla;
 Model CasitaArbol12;
@@ -79,7 +78,11 @@ Model Basura;
 Model Basura2;
 Model arco;
 Model reja;
-
+Model ring;
+Model bancaring;
+Model pedestal;
+Model ajolote;
+Model quetzalcoatl;
 
 Skybox skybox;
 
@@ -316,16 +319,6 @@ int main()
 	plainTexture.LoadTextureA();
 	pisoTexture = Texture("Textures/pisopf.png");
 	pisoTexture.LoadTextureA();
-	//dadoTexture = Texture("Textures/dado-de-numeros.png");
-	//dadoTexture.LoadTextureA();
-	//logofiTexture = Texture("Textures/escudo_fi_color.tga");
-	//logofiTexture.LoadTextureA();
-	//pisoTexture2 = Texture("Textures/piso5.jpg");
-	//pisoTexture2.LoadTextureA();
-	//logofiTexture = Texture("Textures/PuccaTexture.png");
-	//logofiTexture.LoadTextureA();
-	//PisoGIM = Texture("Textures/PisoGIM.png");
-	//PisoGIM.LoadTextureA();
 
 
 
@@ -343,8 +336,6 @@ int main()
 	toriP.LoadModel("Models/toriP.obj");
 	Primo_M = Model();
 	Primo_M.LoadModel("Models/PrimoComplete.obj");
-	fideos3 = Model();
-	fideos3.LoadModel("Models/fideos3.obj");
 	//piso1 = Model();
 	//piso1.LoadModel("Models/piso1.obj");
 	isla = Model();
@@ -369,6 +360,16 @@ int main()
 	arco.LoadModel("Models/arco.obj");
 	reja = Model();
 	reja.LoadModel("Models/reja.obj");
+	ring = Model();
+	ring.LoadModel("Models/ring.obj");
+	bancaring = Model();
+	bancaring.LoadModel("Models/bancaring.obj");
+	pedestal = Model();
+	pedestal.LoadModel("Models/pedestal.obj");
+	ajolote = Model();
+	ajolote.LoadModel("Models/ajolote.obj");
+	quetzalcoatl = Model();
+	quetzalcoatl.LoadModel("Models/quetzalcoatl.obj");
 
 	std::vector<std::string> skyboxFaces;
 	skyboxFaces.push_back("Textures/Skybox/cupertin-lake_rt.tga");
@@ -563,7 +564,7 @@ int main()
 
 		// tori
 		/*model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(35.0f, 1.29f, -150.0f));  // otra posición para que no se encime
+		model = glm::translate(model, glm::vec3(-135.0f, 1.29f, -150.0f));  // otra posición para que no se encime
 		model = glm::rotate(model, -45.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f)); // rotación en Y
 		model = glm::scale(model, glm::vec3(5.15f, 5.15f, 5.15f));      // ajusta tamaño
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
@@ -668,6 +669,16 @@ int main()
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
 		bambooSilla.RenderModel();
 
+		// Ring
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(165.0f, -1.5f, 159.0f));
+		model = glm::rotate(model, 91.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.25f, 0.25f, 0.25f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		ring.RenderModel();
+
 		// Basura
 		model = glm::mat4(1.0f);
 		model = glm::translate(model, glm::vec3(50.0f, -2.29f, -160.0f));  // misma Z que tori
@@ -688,18 +699,88 @@ int main()
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
 		Basura2.RenderModel();
 
-
-		
-
-		//Fideos 2
-		/*model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f, 1.29f, 0.0f));  // otra posición para que no se encime
-		model = glm::rotate(model, -45.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f)); // rotación en Y
-		model = glm::scale(model, glm::vec3(0.15f, 0.15f, 0.15f));      // ajusta tamaño
+		// Ring Banca
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(165.0f, -1.5f, 85.0f));
+		model = glm::rotate(model, 180.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.25f, 0.25f, 0.25f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		color = glm::vec3(1.0f, 1.0f, 1.0f);
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
-		fideos3.RenderModel();*/
+		bancaring.RenderModel();
+
+		// Ring Banca
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(165.0f, -1.5f, 65.0f));
+		model = glm::rotate(model, 180.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.25f, 0.25f, 0.25f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		bancaring.RenderModel();
+
+
+		// Ring Banca
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(165.0f, -1.5f, 240.0f));
+		model = glm::rotate(model, 360.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.25f, 0.25f, 0.25f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		bancaring.RenderModel();
+
+		// Ring Banca
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(165.0f, -1.5f, 260.0f));
+		model = glm::rotate(model, 360.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.25f, 0.25f, 0.25f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		bancaring.RenderModel();
+
+		// Pedestal ajolote
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(-180.0f, -1.5f, -120.0f));
+		model = glm::rotate(model, 360.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(4.25f, 4.25f, 4.25f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		pedestal.RenderModel();
+		// ajolote
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(-180.0f, 18.0f, -120.0f));
+		model = glm::rotate(model, 90.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(4.25f, 4.25f, 4.25f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		ajolote.RenderModel();
+		
+		// Pedestal luchador2
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(155.0f, -1.5f, -120.0f));
+		model = glm::rotate(model, 360.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(4.25f, 4.25f, 4.25f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		pedestal.RenderModel();
+		
+		// Pedestal luchador2
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(-5.0f, -1.5f, 250.0f));
+		model = glm::rotate(model, -270.0f * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		quetzalcoatl.RenderModel();
+		
+
+		
 
 		glUseProgram(0);
 
