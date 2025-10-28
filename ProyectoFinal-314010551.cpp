@@ -69,7 +69,10 @@ static double limitFPS = 1.0 / 60.0;
 //Variables de control de tiempo de Skybox
 
 // luz direccional
-DirectionalLight mainLight;
+DirectionalLight mainLightamanecer;
+DirectionalLight mainLightdia;
+DirectionalLight mainLightatardecer;
+DirectionalLight mainLightnoche;
 //para declarar varias luces de tipo pointlight
 PointLight pointLights[MAX_POINT_LIGHTS];
 SpotLight spotLights[MAX_SPOT_LIGHTS];
@@ -275,9 +278,30 @@ int main()
 
 
 	//luz direccional, sólo 1 y siempre debe de existir
-	mainLight = DirectionalLight(1.0f, 1.0f, 1.0f,
-		0.5f, 0.5f,
-		0.0f, -1.0f, 0.0f);
+
+	mainLightamanecer = DirectionalLight(
+		1.0f, 1.0f, 1.0f,   // color blanco
+		0.5f, 0.5f,         // intensidades (ambiental baja, difusa moderada)
+		-0.3f, -1.0f, -0.2f // dirección (sol bajo, inclinado)
+	);
+
+	mainLightdia = DirectionalLight(
+		0.95f, 0.95f, 0.9f,  // blanco más neutro, menos saturado
+		0.35f, 0.8f,         // intensidades ligeramente reducidas
+		0.0f, -1.0f, 0.0f    // dirección del sol cenital
+	);
+
+	mainLightatardecer = DirectionalLight(
+		0.9f, 0.75f, 0.65f,  // color más claro y menos rojizo (tono dorado suave)
+		0.3f, 0.6f,          // intensidades un poco más altas (más brillo general)
+		0.3f, -1.0f, 0.2f    // dirección del sol bajo en el horizonte
+	);
+
+	mainLightnoche = DirectionalLight(
+		0.094f, 0.235f, 0.235f, // color azul verdoso oscuro (#183C3C)
+		0.15f, 0.30f,         // intensidades más altas (aumenta la visibilidad nocturna)
+		-0.2f, -1.0f, 0.1f      // dirección ligeramente diagonal
+	);
 	//contador de luces puntuales
 	unsigned int pointLightCount = 0;
 	//Declaración de primer luz puntual
@@ -342,21 +366,26 @@ int main()
 		// Clear the window
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 		switch (currentSkybox) {
 		case 0:
 			skybox1.DrawSkybox(camera.calculateViewMatrix(), projection);
+			//shaderList[0].SetDirectionalLight(&mainLightdia);
+
 			break;
 		case 1:
 			skybox2.DrawSkybox(camera.calculateViewMatrix(), projection);
+			//shaderList[0].SetDirectionalLight(&mainLightdia);
 			break;
 		case 2:
 			skybox3.DrawSkybox(camera.calculateViewMatrix(), projection);
+			//shaderList[0].SetDirectionalLight(&mainLightdia);
 			break;
 		case 3:
 			skybox4.DrawSkybox(camera.calculateViewMatrix(), projection);
+			/*		shaderList[0].SetDirectionalLight(&mainLightnoche);*/
 			break;
 		}
+
 
 
 		shaderList[0].UseShader();
@@ -380,8 +409,27 @@ int main()
 		lowerLight.y -= 0.3f;
 		spotLights[0].SetFlash(lowerLight, camera.getCameraDirection());
 
+		//CONTROL DE LA LUZ MAINLIGHT DE ACUERDO AL SKYBOX
+
+		switch (currentSkybox) {
+		case 0:
+			shaderList[0].SetDirectionalLight(&mainLightamanecer);
+			break;
+		case 1:
+			shaderList[0].SetDirectionalLight(&mainLightdia);
+			break;
+		case 2:
+			shaderList[0].SetDirectionalLight(&mainLightatardecer);
+			break;
+		case 3:
+
+			shaderList[0].SetDirectionalLight(&mainLightnoche);
+			break;
+		}
+
+
+
 		//información al shader de fuentes de iluminación
-		shaderList[0].SetDirectionalLight(&mainLight);
 		shaderList[0].SetPointLights(pointLights, pointLightCount);
 		shaderList[0].SetSpotLights(spotLights, spotLightCount);
 
