@@ -66,6 +66,8 @@ GLfloat deltaTime = 0.0f;
 GLfloat lastTime = 0.0f;
 static double limitFPS = 1.0 / 60.0;
 
+//Variables de control de tiempo de Skybox
+
 // luz direccional
 DirectionalLight mainLight;
 //para declarar varias luces de tipo pointlight
@@ -222,15 +224,51 @@ int main()
 	Piramide1_M.LoadModel("Models/pyramid.obj");
 	
 
-	std::vector<std::string> skyboxFaces;
-	skyboxFaces.push_back("Textures/Skybox/cupertin-lake_rt.tga");
-	skyboxFaces.push_back("Textures/Skybox/cupertin-lake_lf.tga");
-	skyboxFaces.push_back("Textures/Skybox/cupertin-lake_dn.tga");
-	skyboxFaces.push_back("Textures/Skybox/cupertin-lake_up.tga");
-	skyboxFaces.push_back("Textures/Skybox/cupertin-lake_bk.tga");
-	skyboxFaces.push_back("Textures/Skybox/cupertin-lake_ft.tga");
+	// --- Skybox 1 ---
+	std::vector<std::string> skyboxFaces1 = {
+		"Textures/Skybox/skybox-amanecer_rt.png",
+		"Textures/Skybox/skybox-amanecer_lf.png",
+		"Textures/Skybox/skybox-amanecer_dn.png",
+		"Textures/Skybox/skybox-amanecer_up.png",
+		"Textures/Skybox/skybox-amanecer_bk.png",
+		"Textures/Skybox/skybox-amanecer_ft.png"
+	};
 
-	skybox = Skybox(skyboxFaces);
+	// --- Skybox 2 ---
+	std::vector<std::string> skyboxFaces2 = {
+		"Textures/Skybox/skybox-dia_rt.png",
+		"Textures/Skybox/skybox-dia_lf.png",
+		"Textures/Skybox/skybox-dia_dn.png",
+		"Textures/Skybox/skybox-dia_up.png",
+		"Textures/Skybox/skybox-dia_bk.png",
+		"Textures/Skybox/skybox-dia_ft.png"
+	};
+
+	// --- Skybox 3 ---
+	std::vector<std::string> skyboxFaces3 = {
+		"Textures/Skybox/skybox-atardecer_rt.png",
+		"Textures/Skybox/skybox-atardecer_lf.png",
+		"Textures/Skybox/skybox-atardecer_dn.png",
+		"Textures/Skybox/skybox-atardecer_up.png",
+		"Textures/Skybox/skybox-atardecer_bk.png",
+		"Textures/Skybox/skybox-atardecer_ft.png"
+	};
+
+	// --- Skybox 4 ---
+	std::vector<std::string> skyboxFaces4 = {
+		"Textures/Skybox/skybox-noche_rt.png",
+		"Textures/Skybox/skybox-noche_lf.png",
+		"Textures/Skybox/skybox-noche_dn.png",
+		"Textures/Skybox/skybox-noche_up.png",
+		"Textures/Skybox/skybox-noche_bk.png",
+		"Textures/Skybox/skybox-noche_ft.png"
+	};
+
+	// Crear los cuatro objetos Skybox
+	Skybox skybox1(skyboxFaces1);
+	Skybox skybox2(skyboxFaces2);
+	Skybox skybox3(skyboxFaces3);
+	Skybox skybox4(skyboxFaces4);
 
 	Material_brillante = Material(4.0f, 256);
 	Material_opaco = Material(0.3f, 4);
@@ -274,13 +312,27 @@ int main()
 		uniformSpecularIntensity = 0, uniformShininess = 0;
 	GLuint uniformColor = 0;
 	glm::mat4 projection = glm::perspective(45.0f, (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 1000.0f);
+	
+	//Controlar tiempo y Skybox Activo
+	double startTime = glfwGetTime();
+	int currentSkybox = 0;  // 0 = skybox1, 1 = skybox2, 2 = skybox3, 3 = skybox4
+	const double changeInterval = 4.0;  // tiempo en segundos
+	const int totalSkyboxes = 4;
+
 	////Loop mientras no se cierra la ventana
 	while (!mainWindow.getShouldClose())
 	{
 		GLfloat now = glfwGetTime();
+
+		// Cambiar skybox cada 10 segundos
+		if (now - startTime >= changeInterval) {
+			currentSkybox = (currentSkybox + 1) % totalSkyboxes;  // Cicla entre 0–3
+			startTime = now;
+		}
 		deltaTime = now - lastTime;
 		deltaTime += (now - lastTime) / limitFPS;
 		lastTime = now;
+
 
 		//Recibir eventos del usuario
 		glfwPollEvents();
@@ -290,7 +342,23 @@ int main()
 		// Clear the window
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		skybox.DrawSkybox(camera.calculateViewMatrix(), projection);
+
+		switch (currentSkybox) {
+		case 0:
+			skybox1.DrawSkybox(camera.calculateViewMatrix(), projection);
+			break;
+		case 1:
+			skybox2.DrawSkybox(camera.calculateViewMatrix(), projection);
+			break;
+		case 2:
+			skybox3.DrawSkybox(camera.calculateViewMatrix(), projection);
+			break;
+		case 3:
+			skybox4.DrawSkybox(camera.calculateViewMatrix(), projection);
+			break;
+		}
+
+
 		shaderList[0].UseShader();
 		uniformModel = shaderList[0].GetModelLocation();
 		uniformProjection = shaderList[0].GetProjectionLocation();
@@ -336,10 +404,10 @@ int main()
 
 		//Instancia del coche 
 		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(-3.0f, 0.5f, 0.0f + mainWindow.getmuevex()));
+		model = glm::translate(model, glm::vec3(0.0f + mainWindow.getmuevex(),0.0f,0.0f));
 		modelaux = model;
 		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
-		//model = glm::rotate(model, -90 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::rotate(model, -90 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		Kitt_M.RenderModel();
 
