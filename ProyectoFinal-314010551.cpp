@@ -281,26 +281,26 @@ int main()
 
 	mainLightamanecer = DirectionalLight(
 		1.0f, 1.0f, 1.0f,   // color blanco
-		0.5f, 0.5f,         // intensidades (ambiental baja, difusa moderada)
-		-0.3f, -1.0f, -0.2f // dirección (sol bajo, inclinado)
+		0.7f, 0.9f,         // intensidades (ambiental baja, difusa moderada)
+		-1.0f, -0.3f, -0.2f // dirección (sol bajo, inclinado)
 	);
 
 	mainLightdia = DirectionalLight(
 		0.95f, 0.95f, 0.9f,  // blanco más neutro, menos saturado
-		0.35f, 0.8f,         // intensidades ligeramente reducidas
+		0.6f, 0.8f,         // intensidades ligeramente reducidas
 		0.0f, -1.0f, 0.0f    // dirección del sol cenital
 	);
 
 	mainLightatardecer = DirectionalLight(
 		0.9f, 0.75f, 0.65f,  // color más claro y menos rojizo (tono dorado suave)
-		0.3f, 0.6f,          // intensidades un poco más altas (más brillo general)
-		0.3f, -1.0f, 0.2f    // dirección del sol bajo en el horizonte
+		0.5f, 0.7f,          // intensidades un poco más altas (más brillo general)
+		1.0f, -0.3f, -0.2f    // dirección del sol bajo en el horizonte
 	);
 
 	mainLightnoche = DirectionalLight(
 		0.094f, 0.235f, 0.235f, // color azul verdoso oscuro (#183C3C)
 		0.15f, 0.30f,         // intensidades más altas (aumenta la visibilidad nocturna)
-		-0.2f, -1.0f, 0.1f      // dirección ligeramente diagonal
+		0.0f, -1.0f, 0.0f      // dirección ligeramente diagonal
 	);
 	//contador de luces puntuales
 	unsigned int pointLightCount = 0;
@@ -338,24 +338,21 @@ int main()
 	glm::mat4 projection = glm::perspective(45.0f, (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 1000.0f);
 	
 	//Controlar tiempo y Skybox Activo
-	double startTime = glfwGetTime();
+	GLfloat startTime = glfwGetTime();
 	int currentSkybox = 0;  // 0 = skybox1, 1 = skybox2, 2 = skybox3, 3 = skybox4
-	const double changeInterval = 4.0;  // tiempo en segundos
-	const int totalSkyboxes = 4;
+	float changeInterval = 4.0;  // tiempo en segundos
+	int totalSkyboxes = 4;
 
 	////Loop mientras no se cierra la ventana
 	while (!mainWindow.getShouldClose())
 	{
 		GLfloat now = glfwGetTime();
-
-		// Cambiar skybox cada 10 segundos
-		if (now - startTime >= changeInterval) {
-			currentSkybox = (currentSkybox + 1) % totalSkyboxes;  // Cicla entre 0–3
-			startTime = now;
-		}
 		deltaTime = now - lastTime;
 		deltaTime += (now - lastTime) / limitFPS;
 		lastTime = now;
+
+
+
 
 
 		//Recibir eventos del usuario
@@ -366,6 +363,15 @@ int main()
 		// Clear the window
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
+		// Cambiar skybox cada x segundos
+		if (now - startTime >= changeInterval) {
+			currentSkybox = (currentSkybox + 1) % totalSkyboxes;  // Cicla entre 0–3
+			startTime = now;
+		}
+
+
 		switch (currentSkybox) {
 		case 0:
 			skybox1.DrawSkybox(camera.calculateViewMatrix(), projection);
