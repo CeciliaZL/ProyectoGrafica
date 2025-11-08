@@ -4,6 +4,9 @@ PROYECTO FINAL
 //para cargar imagen
 #define STB_IMAGE_IMPLEMENTATION
 
+#include <cstdlib>
+#include <ctime>
+
 #include <stdio.h>
 #include <string.h>
 #include <cmath>
@@ -50,8 +53,8 @@ Camera camera1;
 
 float frijolitoWalkTime = 0.0f;
 float frijolitoWalkSpeed = 0.25f;      // velocidad de oscilación
-float frijolitoArmAmplitude = 25.0f;  // grados de movimiento de brazos
-float frijolitoLegAmplitude = 15.0f;  // grados de movimiento de piernas
+float frijolitoArmAmplitude = 35.0f;  // grados de movimiento de brazos
+float frijolitoLegAmplitude = 30.0f;  // grados de movimiento de piernas
 
 float frijolitoRightArmAngle = 0.0f;
 float frijolitoLeftArmAngle = 0.0f;
@@ -59,7 +62,7 @@ float frijolitoRightLegAngle = 0.0f;
 float frijolitoLeftLegAngle = 0.0f;
 
 bool frijolitoIsWalking = false;
-
+int moveDir;
 
 
 // Variables compartidas entre cámara y render, POSICIONES INICIALES
@@ -79,8 +82,11 @@ Camera camera3;
 //========================Declaración de Texturas ==================================
 
 Texture pisoTexture;
+Texture pisoentradaTexture;
 Texture plainTexture;
 Texture luchadorTexture;
+Texture LetreroMLTexture;
+Texture MuroLadrilloEntradaTexture;
 
 //========================Declaración de Modelos===================================
 
@@ -117,6 +123,15 @@ Model PuccaHeart;
 
 Model Ricochet_M;
 Model Terciopelo_M;
+
+//Modelos Puerta
+
+
+Model PilaresEntrada_M;
+Model PuertaLetreroEntrada_M;
+Model PuertaIzqEntrada_M;
+Model PuertaDerEntrada_M;
+
 
 
 //********************************** CECILIA ******************************************************
@@ -277,6 +292,32 @@ SpotLight spotLights[MAX_SPOT_LIGHTS];
 //=========================================== FIN LUCES ================================================
 
 //=========================================== DECLARACION VARIABLES DE ANIMACION ================================================
+
+//**************************************PUERTA ******************************************************
+//// Textura Animada Letrero
+
+float toffsetletrerou = 0.0f;
+float toffsetletrerov = 0.0f;
+
+// Animación puertaizquierda
+
+float angulopuerta;
+bool abriendopuertaizq;
+float timerPuertaIzq;
+
+
+// Animación puertaderecha
+
+float muevepuertaderechaZ;
+float muevepuertaderechaX;
+bool abriendopuertader;
+float timerPuertaDer;
+
+
+bool cicloPuertasTerminado = true;
+bool ultimaAnimacionEstado = false;
+
+//************************************** FIN PUERTA ******************************************************
 
 //Animacion ajolote
 float ajoloteAvance = 0.0f;     // movimiento base (como el dragonavance)
@@ -467,7 +508,20 @@ void CreateObjects()
 
 
 	};
-	
+	unsigned int letreroIndices[] = {
+	   0, 1, 2,
+	   0, 2, 3,
+	};
+
+	GLfloat letreroVertices[] = {
+		-0.5f, 0.0f, 0.5f,		0.0f, 0.0f,		0.0f, -1.0f, 0.0f,
+		0.5f, 0.0f, 0.5f,		1.0f, 0.0f,		0.0f, -1.0f, 0.0f,
+		0.5f, 0.0f, -0.5f,		1.0f, 1.0f,		0.0f, -1.0f, 0.0f,
+		-0.5f, 0.0f, -0.5f,		0.0f, 1.0f,		0.0f, -1.0f, 0.0f,
+
+	};
+
+
 	Mesh *obj1 = new Mesh();
 	obj1->CreateMesh(vertices, indices, 32, 12);
 	meshList.push_back(obj1);
@@ -483,6 +537,10 @@ void CreateObjects()
 	Mesh* obj4 = new Mesh();
 	obj4->CreateMesh(vegetacionVertices, vegetacionIndices, 64, 12);
 	meshList.push_back(obj4);
+
+	Mesh* obj5 = new Mesh();
+	obj5->CreateMesh(letreroVertices, letreroIndices, 32, 6);
+	meshList.push_back(obj5);
 
 	calcAverageNormals(indices, 12, vertices, 32, 8, 5);
 
@@ -521,7 +579,7 @@ void CrearCubo()
 		//x		y		z		S		T			NX		NY		NZ
 		-0.5f, -0.5f,  0.5f,	0.0f,  0.0f,		0.0f,	0.0f,	-1.0f,	//0
 		0.5f, -0.5f,  0.5f,		1.0f,	0.0f,		0.0f,	0.0f,	-1.0f,	//1
-		0.5f,  0.5f,  0.5f,		1.f,	1.0f,		0.0f,	0.0f,	-1.0f,	//2
+		0.5f,  0.5f,  0.5f,		1.0f,	1.0f,		0.0f,	0.0f,	-1.0f,	//2
 		-0.5f,  0.5f,  0.5f,	0.0f,	1.0f,		0.0f,	0.0f,	-1.0f,	//3
 		// right
 		//x		y		z		S		T
@@ -563,6 +621,149 @@ void CrearCubo()
 }
 
 
+void CrearMuros()
+{
+	unsigned int muroEntradaIzq_indices[] = {
+		// front
+		0, 1, 2,
+		2, 3, 0,
+
+		// back
+		8, 9, 10,
+		10, 11, 8,
+
+		// left
+		12, 13, 14,
+		14, 15, 12,
+		// bottom
+		16, 17, 18,
+		18, 19, 16,
+		// top
+		20, 21, 22,
+		22, 23, 20,
+
+		// right
+		4, 5, 6,
+		6, 7, 4,
+
+	};
+
+	GLfloat muroEntradaIzq_vertices[] = {
+		// front
+		//x		y		z		S		T			NX		NY		NZ
+		-0.5f, -0.5f,  0.5f,	0.0f,  0.0f,		0.0f,	0.0f,	-1.0f,	//0
+		0.5f, -0.5f,  0.5f,		0.25f,	0.0f,		0.0f,	0.0f,	-1.0f,	//1
+		0.5f,  0.5f,  0.5f,		0.25f,	3.0f,		0.0f,	0.0f,	-1.0f,	//2
+		-0.5f,  0.5f,  0.5f,	0.0f,	3.0f,		0.0f,	0.0f,	-1.0f,	//3
+		// right
+		//x		y		z		S		T
+		0.5f, -0.5f,  0.5f,	    0.0f,  0.0f,		-1.0f,	0.0f,	0.0f,
+		0.5f, -0.5f,  -0.5f,	24.0f,	0.0f,		-1.0f,	0.0f,	0.0f,
+		0.5f,  0.5f,  -0.5f,	24.0f,	3.0f,		-1.0f,	0.0f,	0.0f,
+		0.5f,  0.5f,  0.5f,	    0.0f,	3.0f,		-1.0f,	0.0f,	0.0f,
+		// back
+		-0.5f, -0.5f, -0.5f,	0.0f,  0.0f,		0.0f,	0.0f,	1.0f,
+		0.5f, -0.5f, -0.5f,		0.25f,	0.0f,		0.0f,	0.0f,	1.0f,
+		0.5f,  0.5f, -0.5f,		0.25f,	3.0f,		0.0f,	0.0f,	1.0f,
+		-0.5f,  0.5f, -0.5f,	0.0f,	3.0f,		0.0f,	0.0f,	1.0f,
+
+		// left
+		//x		y		z		S		T
+		-0.5f, -0.5f,  -0.5f,	0.0f,  0.0f,		1.0f,	0.0f,	0.0f,
+		-0.5f, -0.5f,  0.5f,	24.0f,	0.0f,		1.0f,	0.0f,	0.0f,
+		-0.5f,  0.5f,  0.5f,	24.0f,	3.0f,		1.0f,	0.0f,	0.0f,
+		-0.5f,  0.5f,  -0.5f,	0.0f,	3.0f,		1.0f,	0.0f,	0.0f,
+
+		// bottom
+		//x		y		z		S		T
+		-0.5f, -0.5f,  0.5f,	0.0f,  0.0f,		0.0f,	1.0f,	0.0f,
+		0.5f,  -0.5f,  0.5f,	10.0f,	0.0f,		0.0f,	1.0f,	0.0f,
+		 0.5f,  -0.5f,  -0.5f,	10.0f,	1.0f,		0.0f,	1.0f,	0.0f,
+		-0.5f, -0.5f,  -0.5f,	0.0f,	1.0f,		0.0f,	1.0f,	0.0f,
+
+		//UP
+		 //x		y		z		S		T
+		 -0.5f, 0.5f,  0.5f,	0.0f,  0.0f,		0.0f,	-1.0f,	0.0f,
+		 0.5f,  0.5f,  0.5f,	0.005f,	0.0f,		0.0f,	-1.0f,	0.0f,
+		  0.5f, 0.5f,  -0.5f,	0.005f,	3.0f,		0.0f,	-1.0f,	0.0f,
+		 -0.5f, 0.5f,  -0.5f,	0.0f,	3.0f,		0.0f,	-1.0f,	0.0f,
+
+	};
+	Mesh* muroEntradaIzq = new Mesh();
+	muroEntradaIzq->CreateMesh(muroEntradaIzq_vertices, muroEntradaIzq_indices, 192, 36);
+	meshList.push_back(muroEntradaIzq);
+
+	unsigned int muroEntradaDer_indices[] = {
+		// front
+		0, 1, 2,
+		2, 3, 0,
+
+		// back
+		8, 9, 10,
+		10, 11, 8,
+
+		// left
+		12, 13, 14,
+		14, 15, 12,
+		// bottom
+		16, 17, 18,
+		18, 19, 16,
+		// top
+		20, 21, 22,
+		22, 23, 20,
+
+		// right
+		4, 5, 6,
+		6, 7, 4,
+
+	};
+
+	GLfloat muroEntradaDer_vertices[] = {
+		// front
+		//x		y		z		S		T			NX		NY		NZ
+		-0.5f, -0.5f,  0.5f,	0.0f,  0.0f,		0.0f,	0.0f,	-1.0f,	//0
+		0.5f, -0.5f,  0.5f,		0.25f,	0.0f,		0.0f,	0.0f,	-1.0f,	//1
+		0.5f,  0.5f,  0.5f,		0.25f,	3.0f,		0.0f,	0.0f,	-1.0f,	//2
+		-0.5f,  0.5f,  0.5f,	0.0f,	3.0f,		0.0f,	0.0f,	-1.0f,	//3
+		// right
+		//x		y		z		S		T
+		0.5f, -0.5f,  0.5f,	    0.0f,  0.0f,		-1.0f,	0.0f,	0.0f,
+		0.5f, -0.5f,  -0.5f,	9.0f,	0.0f,		-1.0f,	0.0f,	0.0f,
+		0.5f,  0.5f,  -0.5f,	9.0f,	3.0f,		-1.0f,	0.0f,	0.0f,
+		0.5f,  0.5f,  0.5f,	    0.0f,	3.0f,		-1.0f,	0.0f,	0.0f,
+		// back
+		-0.5f, -0.5f, -0.5f,	0.0f,  0.0f,		0.0f,	0.0f,	1.0f,
+		0.5f, -0.5f, -0.5f,		0.25f,	0.0f,		0.0f,	0.0f,	1.0f,
+		0.5f,  0.5f, -0.5f,		0.25f,	3.0f,		0.0f,	0.0f,	1.0f,
+		-0.5f,  0.5f, -0.5f,	0.0f,	3.0f,		0.0f,	0.0f,	1.0f,
+
+		// left
+		//x		y		z		S		T
+		-0.5f, -0.5f,  -0.5f,	0.0f,  0.0f,		1.0f,	0.0f,	0.0f,
+		-0.5f, -0.5f,  0.5f,	9.0f,	0.0f,		1.0f,	0.0f,	0.0f,
+		-0.5f,  0.5f,  0.5f,	9.0f,	3.0f,		1.0f,	0.0f,	0.0f,
+		-0.5f,  0.5f,  -0.5f,	0.0f,	3.0f,		1.0f,	0.0f,	0.0f,
+
+		// bottom
+		//x		y		z		S		T
+		-0.5f, -0.5f,  0.5f,	0.0f,  0.0f,		0.0f,	1.0f,	0.0f,
+		0.5f,  -0.5f,  0.5f,	1.0f,	0.0f,		0.0f,	1.0f,	0.0f,
+		 0.5f,  -0.5f,  -0.5f,	1.0f,	1.0f,		0.0f,	1.0f,	0.0f,
+		-0.5f, -0.5f,  -0.5f,	0.0f,	1.0f,		0.0f,	1.0f,	0.0f,
+
+		//UP
+		 //x		y		z		S		T
+		 -0.5f, 0.5f,  0.5f,	0.0f,  0.0f,		0.0f,	-1.0f,	0.0f,
+		 0.5f,  0.5f,  0.5f,	0.005f,	0.0f,		0.0f,	-1.0f,	0.0f,
+		  0.5f, 0.5f,  -0.5f,	0.005f,	3.0f,		0.0f,	-1.0f,	0.0f,
+		 -0.5f, 0.5f,  -0.5f,	0.0f,	3.0f,		0.0f,	-1.0f,	0.0f,
+
+	};
+	Mesh* muroEntradaDer = new Mesh();
+	muroEntradaDer->CreateMesh(muroEntradaDer_vertices, muroEntradaDer_indices, 192, 36);
+	meshList.push_back(muroEntradaDer);
+}
+
 void CreateShaders()
 {
 	Shader *shader1 = new Shader();
@@ -579,21 +780,31 @@ int main()
 
 	CreateObjects();
 	CrearCubo();
+	CrearMuros();
 	CreateShaders();
 
 	camera1 = Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.0f, -15.0f, 1.0f, 0.5f);
 	camera2 = Camera(glm::vec3(0.0f, 100.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, -90.0f, 1.0f, 0.5f);
-	camera3 = Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 0.3f, 0.5f);
+	camera3 = Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 1.0f, 0.5f);
 
 	// ================================ TEXTURAS ==========================================
 
 	pisoTexture = Texture("Textures/pisopf.png");
 	pisoTexture.LoadTextureA();
+	pisoentradaTexture = Texture("Textures/pisoentrada.png");
+	pisoentradaTexture.LoadTexture();
 	plainTexture = Texture("Textures/plain.png");
 	plainTexture.LoadTextureA();
 
 	luchadorTexture = Texture("Textures/fam1.jpg");
 	luchadorTexture.LoadTextureA();
+	LetreroMLTexture = Texture("Textures/LetreroML.tga");
+	LetreroMLTexture.LoadTextureA();
+
+	MuroLadrilloEntradaTexture = Texture("Textures/muroladrilloentrada.png");
+	MuroLadrilloEntradaTexture.LoadTexture();
+
+
 	// ================================= CARGA DE MODELOS ===============================
 
 	// ******************************** DANIEL ********************************************
@@ -667,6 +878,15 @@ int main()
 
 	Terciopelo_M = Model();
 	Terciopelo_M.LoadModel("Models/terciopelo.obj");
+
+	PilaresEntrada_M = Model();
+	PilaresEntrada_M.LoadModel("Models/pilarespuertaentrada.obj");
+	PuertaLetreroEntrada_M = Model();
+	PuertaLetreroEntrada_M.LoadModel("Models/puertaentradaletrero.obj");
+	PuertaDerEntrada_M = Model();
+	PuertaDerEntrada_M.LoadModel("Models/puertaentradaderecha.obj");
+	PuertaIzqEntrada_M = Model();
+	PuertaIzqEntrada_M.LoadModel("Models/puertaentradaizquierda.obj");
 
 
 	// ******************************** CECILIA ********************************************
@@ -1056,9 +1276,8 @@ int main()
 	
 
 	// ================================= FIN LUCES ===========================================
-
 	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0,
-		uniformSpecularIntensity = 0, uniformShininess = 0;
+		uniformSpecularIntensity = 0, uniformShininess = 0, uniformTextureOffset = 0;
 	GLuint uniformColor = 0;
 	glm::mat4 projection = glm::perspective(45.0f, (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 1000.0f);
 	
@@ -1071,10 +1290,11 @@ int main()
 
 	glm::mat4 model(1.0);
 	glm::mat4 modelaux(1.0);
-	glm::mat4 modelauxCamera(1.0);
+	glm::mat4 modelauxletrero(1.0);
 
 	//FRIJOLITO
 	glm::vec3 frijolitoPos;
+	glm::vec2 toffset = glm::vec2(0.0f, 0.0f);
 	glm::mat4 modelauxfrijolito(1.0);
 
 	//PUCCA
@@ -1103,8 +1323,24 @@ int main()
 
 
 
+	//Inicializar variables de letrero
+	toffsetletrerou = 0.0f;
+	toffsetletrerov = 0.0f;
 
-	////Loop mientras no se cierra la ventana
+	//Inicializar variables puerta izquierda
+
+	angulopuerta = 0.0f;
+	abriendopuertaizq = true;
+	timerPuertaIzq = 0.0f;
+
+
+	//Inicializar variables puerta derecha
+
+	muevepuertaderechaZ = 0.0f;
+	muevepuertaderechaX = 0.0f;
+	abriendopuertader = true;
+	timerPuertaDer = 0.0f;
+
 	while (!mainWindow.getShouldClose())
 	{
 		GLfloat now = glfwGetTime();
@@ -1121,7 +1357,7 @@ int main()
 		// ======================================================
 		// CONTROL DE CÁMARAS
 		// ======================================================
-		if (mainWindow.getcontrolcamara() == 0)
+		if (mainWindow.getcontrolcamara() == 2)
 		{
 			// Cámara 1 - Tercera persona
 			camera1.mouseControlAvatar(mainWindow.getXChange(), mainWindow.getYChange());
@@ -1139,7 +1375,7 @@ int main()
 			view = camera2.calculateViewMatrix();
 			eyePos = camera2.getCameraPosition();
 		}
-		else if (mainWindow.getcontrolcamara() == 2)
+		else if (mainWindow.getcontrolcamara() == 0)
 		{
 			camera3.keyControl(mainWindow.getsKeys(), deltaTime);
 			camera3.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
@@ -1183,6 +1419,7 @@ int main()
 		uniformView = shaderList[0].GetViewLocation();
 		uniformEyePosition = shaderList[0].GetEyePositionLocation();
 		uniformColor = shaderList[0].getColorLocation();
+		uniformTextureOffset = shaderList[0].getOffsetLocation(); // para la textura con movimiento
 		
 		//información en el shader de intensidad especular y brillo
 		uniformSpecularIntensity = shaderList[0].GetSpecularIntensityLocation();
@@ -1226,26 +1463,213 @@ int main()
 
 
 
-
-
-
-
 		// =========================== RENDERIZADO, ANIMACIÓN Y TEXTURIZADO DE MODELOS Y GEOMETRÍAS =========================
 
 		// ======================================== PISO CROQUIS ============================================================
 
 		color = glm::vec3(1.0f, 1.0f, 1.0f);
-
+		toffset = glm::vec2(0.0f, 0.0f);
 		model = glm::mat4(1.0);
 		model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(30.0f * 0.788f, 1.0f, 30.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		glUniform2fv(uniformTextureOffset, 1, glm::value_ptr(toffset));
 
 		pisoTexture.UseTexture();
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 
 		meshList[2]->RenderMesh();
+
+		// ======================================== PISO ENTRADA ============================================================
+
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(256.4f, -1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(2.0f, 1.0f, 30.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+
+		pisoentradaTexture.UseTexture();
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+
+		meshList[2]->RenderMesh();
+
+
+
+
+
+		// ======================================== PUERTA ENTRADA ============================================================
+		//PUERTAS
+		//================================================================
+
+		model = glm::mat4(1.0);
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+
+
+		model = glm::translate(model, glm::vec3(236.0f, 16.0f, -122.5f));
+		model = glm::rotate(model, -90 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(4.0f, 4.0f, 4.0f));
+		modelaux = model;
+		color = glm::vec3(0.6627f, 0.6627f, 0.6627f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		PilaresEntrada_M.RenderModel();
+
+		// Detectar cambio de mainWindow.getanimapuertas() para reiniciar
+		if (!ultimaAnimacionEstado && mainWindow.getanimapuertas())
+		{
+			// Solo reiniciamos si las puertas están en posición inicial
+			if (angulopuerta == 0.0f &&
+				muevepuertaderechaX == 0.0f &&
+				muevepuertaderechaZ == 0.0f)
+			{
+				cicloPuertasTerminado = false;    // permite iniciar animación
+				abriendopuertaizq = true;         // reiniciamos dirección izquierda
+				abriendopuertader = true;         // reiniciamos dirección derecha
+			}
+		}
+
+		// Guardamos el estado actual para detectar cambios
+		ultimaAnimacionEstado = mainWindow.getanimapuertas();
+
+		// Animación de puertas solo si está activada y no ha terminado el ciclo
+		if (mainWindow.getanimapuertas() && !cicloPuertasTerminado)
+		{
+			// ------- PUERTA IZQUIERDA -------
+			if (abriendopuertaizq)
+			{
+				angulopuerta += 0.25f * deltaTime;
+				if (angulopuerta >= 90.0f)
+				{
+					angulopuerta = 90.0f;
+					timerPuertaIzq += deltaTime;
+					if (timerPuertaIzq >= 120.0f)
+					{
+						abriendopuertaizq = false;
+						timerPuertaIzq = 0.0f;
+					}
+				}
+			}
+			else
+			{
+				angulopuerta -= 0.25f * deltaTime;
+				if (angulopuerta <= 0.0f)
+				{
+					angulopuerta = 0.0f;
+					// se queda en cero hasta reinicio
+				}
+			}
+
+			// ------- PUERTA DERECHA (lógica invertida) -------
+			if (abriendopuertader)
+			{
+				muevepuertaderechaZ += 0.01f * deltaTime;    // antes era -=
+				if (muevepuertaderechaZ >= 1.32f)            // antes era <= -1.32f
+				{
+					muevepuertaderechaZ = 1.32f;
+					muevepuertaderechaX -= 0.025f * deltaTime; // antes era +=
+					if (muevepuertaderechaX <= -6.4f)           // antes era >= 6.4f
+					{
+						muevepuertaderechaX = -6.4f;
+						timerPuertaDer += deltaTime;
+						if (timerPuertaDer >= 120.0f)
+						{
+							abriendopuertader = false;
+							timerPuertaDer = 0.0f;
+						}
+					}
+				}
+			}
+			else
+			{
+				muevepuertaderechaX += 0.025f * deltaTime;     // antes era -=
+				if (muevepuertaderechaX >= 0.0f)
+				{
+					muevepuertaderechaX = 0.0f;
+					muevepuertaderechaZ -= 0.01f * deltaTime;   // antes era +=
+					if (muevepuertaderechaZ <= 0.0f)
+						muevepuertaderechaZ = 0.0f; // se queda en cero hasta reinicio
+				}
+			}
+
+
+			// ------- Detectar si ciclo completo terminó -------
+			if (angulopuerta == 0.0f &&
+				muevepuertaderechaX == 0.0f &&
+				muevepuertaderechaZ == 0.0f)
+			{
+				cicloPuertasTerminado = true; // se queda bloqueado hasta próximo cambio de animapuertas
+				mainWindow.setanimapuertas(false); // setear la animación en false para que cuando la apretemos vuelva a empezar
+			}
+		}
+
+
+
+
+
+		model = modelaux;
+		model = glm::translate(model, glm::vec3(4.7455f, 0.0f, 0.0f));
+		model = glm::rotate(model, angulopuerta * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		color = glm::vec3(0.4902f, 0.3529f, 0.3098f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		PuertaIzqEntrada_M.RenderModel();
+
+
+
+		model = modelaux;
+		model = glm::translate(model, glm::vec3(-4.7455f + muevepuertaderechaX, 0.0f, muevepuertaderechaZ));
+		color = glm::vec3(0.4902f, 0.3529f, 0.3098f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		PuertaDerEntrada_M.RenderModel();
+
+
+		model = modelaux;
+		model = glm::translate(model, glm::vec3(0.0f, 6.84f, 0.0f));
+		modelauxletrero = model;
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		PuertaLetreroEntrada_M.RenderModel();
+
+		// =========================   FIN PUERTAS ======================================================================================
+
+		// =========================   MUROS ============================================================================================
+
+		// Muro Izq Entrada
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(236.0f, 11.55f, 101.0f));
+		model = glm::scale(model, glm::vec3(4.0f, 25.0f, 398.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+
+		MuroLadrilloEntradaTexture.UseTexture();
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+
+		meshList[6]->RenderMesh();
+
+		// Muro Der Entrada
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(236.0f, 11.55f, -223.5f));
+		model = glm::scale(model, glm::vec3(4.0f, 25.0f, 153.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+
+		MuroLadrilloEntradaTexture.UseTexture();
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+
+		meshList[7]->RenderMesh();
 
 		// ************************************* AVATAR ***********************************************
 		// ********************************************************************************************
@@ -1256,7 +1680,7 @@ int main()
 
 		// Detección de movimiento
 		frijolitoIsWalking = camera1.isAvatarMoving();
-		int moveDir = camera1.getAvatarMoveDirection();
+		moveDir = camera1.getAvatarMoveDirection();
 
 		if (frijolitoIsWalking)
 		{
@@ -1360,7 +1784,8 @@ int main()
 		//===================================== Ricochet =======================================
 
 		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f, 0.865f, 30.0f)); //+5.0
+		model = glm::translate(model, glm::vec3(135.0f, 8.865f, 160.0f));
+		model = glm::rotate(model, 90 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(0.75f, 0.75f, 0.75f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		color = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -1371,7 +1796,8 @@ int main()
 		//===================================== Buena Niña =======================================
 
 		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f, 0.865f, 50.0f)); //+5.0
+		model = glm::translate(model, glm::vec3(135.0f, 8.865f, 180.0f));
+		model = glm::rotate(model, 90 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(0.75f, 0.75f, 0.75f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
@@ -3041,16 +3467,31 @@ int main()
 
 
 
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		///*
-		////blending: transparencia o traslucidez
-		//		glEnable(GL_BLEND);
-		//		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		//		logofiTexture.UseTexture(); //textura con transparencia o traslucidez
-		//		FIGURA A RENDERIZAR de OpenGL, si es modelo importado no se declara UseTexture
-		//		glDisable(GL_BLEND);
-		//*/
+		toffsetletrerou += 0.003;
 
+		if (toffsetletrerou > 1.0)
+		toffsetletrerou = 0.0;
+
+		toffset = glm::vec2(toffsetletrerou, toffsetletrerov);
+
+		model = modelauxletrero;
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, -0.17f));
+		model = glm::rotate(model, 90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, 180 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::scale(model, glm::vec3(13.5f, 1.0f, 3.25f));
+		glUniform2fv(uniformTextureOffset, 1, glm::value_ptr(toffset));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		LetreroMLTexture.UseTexture();
+		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		meshList[4]->RenderMesh();
+
+
+		glDisable(GL_BLEND);
 
 		glUseProgram(0);
 
