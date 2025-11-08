@@ -19,6 +19,7 @@ Window::Window(GLint windowWidth, GLint windowHeight)
 	mueveavatarz = 0.0f;
 	rotaavatary = 0.0f;
 	controlcamara = 0;
+	animapuertas = false;
 	controllibroML = false;
 	for (size_t i = 0; i < 1024; i++)
 	{
@@ -119,7 +120,10 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 		theWindow-> muevex -= 1.0;
 	}
 
-
+	if (key == GLFW_KEY_P && action == GLFW_PRESS)
+	{
+		theWindow->animapuertas = !theWindow->animapuertas;
+	}
 
 
 
@@ -172,6 +176,9 @@ void Window::ManejaMouse(GLFWwindow* window, double xPos, double yPos)
 
 	theWindow->lastX = xPos;
 	theWindow->lastY = yPos;
+}
+void Window::setanimapuertas(bool value) {
+	animapuertas = value;
 }
 
 

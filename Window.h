@@ -15,14 +15,13 @@ public:
 	GLfloat getYChange();
 	GLint getcontrolcamara() { return controlcamara; }
 	GLboolean getcontrollibroML() { return controllibroML; }
-	GLfloat getmueveavatarx() { return mueveavatarx; }
-	GLfloat getmueveavatarz() { return mueveavatarz; }
-	GLfloat getrotaavatary() { return rotaavatary; }
+	GLboolean getanimapuertas() { return animapuertas; }
 	GLfloat getmuevex() { return muevex; }
 	bool getShouldClose() {
 		return  glfwWindowShouldClose(mainWindow);}
 	bool* getsKeys() { return keys; }
 	void swapBuffers() { return glfwSwapBuffers(mainWindow); }
+	void setanimapuertas(bool value); //setter animapuertas
 	
 	~Window();
 private: 
@@ -37,6 +36,7 @@ private:
 	GLfloat yChange;
 	GLint controlcamara;
 	GLboolean controllibroML;
+	GLboolean animapuertas;
 	GLfloat muevex;
 	GLfloat mueveavatarx;
 	GLfloat mueveavatarz;
