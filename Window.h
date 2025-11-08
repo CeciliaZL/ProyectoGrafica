@@ -13,6 +13,11 @@ public:
 	GLfloat getBufferHeight() { return bufferHeight; }
 	GLfloat getXChange();
 	GLfloat getYChange();
+	GLint getcontrolcamara() { return controlcamara; }
+	GLboolean getcontrollibroML() { return controllibroML; }
+	GLfloat getmueveavatarx() { return mueveavatarx; }
+	GLfloat getmueveavatarz() { return mueveavatarz; }
+	GLfloat getrotaavatary() { return rotaavatary; }
 	GLfloat getmuevex() { return muevex; }
 	bool getShouldClose() {
 		return  glfwWindowShouldClose(mainWindow);}
@@ -30,7 +35,12 @@ private:
 	GLfloat lastY;
 	GLfloat xChange;
 	GLfloat yChange;
+	GLint controlcamara;
+	GLboolean controllibroML;
 	GLfloat muevex;
+	GLfloat mueveavatarx;
+	GLfloat mueveavatarz;
+	GLfloat rotaavatary;
 	bool mouseFirstMoved;
 	static void ManejaTeclado(GLFWwindow* window, int key, int code, int action, int mode);
 	static void ManejaMouse(GLFWwindow* window, double xPos, double yPos);

@@ -4,6 +4,7 @@ Window::Window()
 {
 	width = 800;
 	height = 600;
+	controlcamara = 0;
 	for (size_t i = 0; i < 1024; i++)
 	{
 		keys[i] = 0;
@@ -14,6 +15,11 @@ Window::Window(GLint windowWidth, GLint windowHeight)
 	width = windowWidth;
 	height = windowHeight;
 	muevex = 2.0f;
+	mueveavatarx = 0.0f;
+	mueveavatarz = 0.0f;
+	rotaavatary = 0.0f;
+	controlcamara = 0;
+	controllibroML = false;
 	for (size_t i = 0; i < 1024; i++)
 	{
 		keys[i] = 0;
@@ -115,6 +121,25 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 
 
 
+
+
+
+	if (key == GLFW_KEY_L && action == GLFW_PRESS)
+	{
+		theWindow->controllibroML = !theWindow->controllibroML;
+
+	}
+
+
+
+	if (key == GLFW_KEY_C && action == GLFW_PRESS)
+	{
+		theWindow->controlcamara += 1;
+		if (theWindow->controlcamara > 2)
+			theWindow->controlcamara = 0;
+	}
+
+
 	if (key >= 0 && key < 1024)
 	{
 		if (action == GLFW_PRESS)
@@ -143,6 +168,7 @@ void Window::ManejaMouse(GLFWwindow* window, double xPos, double yPos)
 
 	theWindow->xChange = xPos - theWindow->lastX;
 	theWindow->yChange = theWindow->lastY - yPos;
+
 
 	theWindow->lastX = xPos;
 	theWindow->lastY = yPos;
