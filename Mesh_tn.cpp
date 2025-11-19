@@ -40,6 +40,7 @@ void Mesh::CreateMesh(GLfloat *vertices, unsigned int *indices, unsigned int num
 
 void Mesh::RenderMesh()
 {
+	////////////Para dibujar desde los índices
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
 	glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);

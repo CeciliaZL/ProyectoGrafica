@@ -12,6 +12,16 @@ public:
 
 	~Light();
 
+	// === Getters ===
+	glm::vec3 GetColor() const { return color; }
+	GLfloat GetAmbientIntensity() const { return ambientIntensity; }
+	GLfloat GetDiffuseIntensity() const { return diffuseIntensity; }
+
+	// === Setters ===
+	void SetColor(const glm::vec3& newColor) { color = newColor; }
+	void SetAmbientIntensity(GLfloat intensity) { ambientIntensity = intensity; }
+	void SetDiffuseIntensity(GLfloat intensity) { diffuseIntensity = intensity; }
+
 protected:
 	glm::vec3 color;
 	GLfloat ambientIntensity;

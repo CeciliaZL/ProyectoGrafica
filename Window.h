@@ -16,7 +16,11 @@ public:
 	GLint getcontrolcamara() { return controlcamara; }
 	GLboolean getcontrollibroML() { return controllibroML; }
 	GLboolean getanimapuertas() { return animapuertas; }
-	GLfloat getmuevex() { return muevex; }
+	GLboolean getrico() { return luzrico; } // Luz rico proyecto 1
+	GLboolean getcarl() { return luzcarl; } // Luz carl proyecto 1
+	GLboolean getanimprimo() { return animprimo; } // Animación primo proyecto 1
+	GLboolean getanimjessie() { return animjessie; } // Animación jessie proyecto 1
+
 	bool getShouldClose() {
 		return  glfwWindowShouldClose(mainWindow);}
 	bool* getsKeys() { return keys; }
@@ -37,10 +41,11 @@ private:
 	GLint controlcamara;
 	GLboolean controllibroML;
 	GLboolean animapuertas;
-	GLfloat muevex;
-	GLfloat mueveavatarx;
-	GLfloat mueveavatarz;
-	GLfloat rotaavatary;
+	GLboolean luzrico; // Luz rico proyecto 1
+	GLboolean luzcarl; // Luz carl proyecto 1
+	GLboolean animprimo; // Animación primo proyecto 1
+	GLboolean animjessie; // Animación jessie proyecto 1
+
 	bool mouseFirstMoved;
 	static void ManejaTeclado(GLFWwindow* window, int key, int code, int action, int mode);
 	static void ManejaMouse(GLFWwindow* window, double xPos, double yPos);

@@ -14,13 +14,13 @@ Window::Window(GLint windowWidth, GLint windowHeight)
 {
 	width = windowWidth;
 	height = windowHeight;
-	muevex = 2.0f;
-	mueveavatarx = 0.0f;
-	mueveavatarz = 0.0f;
-	rotaavatary = 0.0f;
 	controlcamara = 0;
 	animapuertas = false;
 	controllibroML = false;
+	luzrico = true; //luz rico proyecto 1
+	luzcarl = true; //luz carl proyecto 1
+	animprimo = false; //animación primo proyecto 1
+	animjessie = false; //animación jessie proyecto 1
 	for (size_t i = 0; i < 1024; i++)
 	{
 		keys[i] = 0;
@@ -43,7 +43,7 @@ int Window::Initialise()
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
 	//CREAR VENTANA
-	mainWindow = glfwCreateWindow(width, height, "PracticaXX:Nombre de la practica", NULL, NULL);
+	mainWindow = glfwCreateWindow(width, height, "Proyecto Final: Pucca x Mucha Lucha x Brawl Stars", NULL, NULL);
 
 	if (!mainWindow)
 	{
@@ -111,16 +111,9 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 	{
 		glfwSetWindowShouldClose(window, GL_TRUE);
 	}
-	if (key == GLFW_KEY_Y)
-	{
-		theWindow-> muevex += 1.0;
-	}
-	if (key == GLFW_KEY_U)
-	{
-		theWindow-> muevex -= 1.0;
-	}
 
-	if (key == GLFW_KEY_P && action == GLFW_PRESS)
+
+	if (key == GLFW_KEY_P && action == GLFW_PRESS) //ANIMACIÓN DE PUERTAS
 	{
 		theWindow->animapuertas = !theWindow->animapuertas;
 	}
@@ -128,7 +121,7 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 
 
 
-	if (key == GLFW_KEY_L && action == GLFW_PRESS)
+	if (key == GLFW_KEY_L && action == GLFW_PRESS) // ANIMACIÓN DE LIBRO
 	{
 		theWindow->controllibroML = !theWindow->controllibroML;
 
@@ -142,6 +135,29 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 		if (theWindow->controlcamara > 2)
 			theWindow->controlcamara = 0;
 	}
+
+	//NUEVAS TECLAS PARA PROYECTO 1
+	if (key == GLFW_KEY_I && action == GLFW_PRESS) // Luz rico proyecto 1
+	{
+		theWindow->luzrico = !theWindow->luzrico;
+	}
+
+	if (key == GLFW_KEY_O && action == GLFW_PRESS) // Luz carl proyecto 1
+	{
+		theWindow->luzcarl = !theWindow->luzcarl;
+	}
+
+	if (key == GLFW_KEY_K && action == GLFW_PRESS) // Animacion primo proyecto 1
+	{
+		theWindow->animprimo = !theWindow->animprimo;
+	}
+
+	if (key == GLFW_KEY_M && action == GLFW_PRESS) // Animacion jessie proyecto 1
+	{
+		theWindow->animjessie = !theWindow->animjessie;
+	}
+	//Fin nuevas teclas proyecto 1
+
 
 
 	if (key >= 0 && key < 1024)
