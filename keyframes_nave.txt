@@ -1,5 +1,0 @@
-FrameIndex = 1;
-KeyFrame[0].movAvion_x = 0.00f;
-KeyFrame[0].movAvion_y = 0.00f;
-KeyFrame[0].giroAvion  = 0.00f;
-
